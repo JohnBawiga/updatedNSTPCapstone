@@ -6,31 +6,34 @@ import './TeacherEvents.css';
 const TeacherEvents = () => {
     const { teacherID } = useParams();
     const [events, setEvents] = useState([]);
-    const [userid, setUserid] = useState(null);
+    const [sectionId, setSectionId] = useState(null);
+    const [teacher, setTeacher] = useState('');
 
     useEffect(() => {
-        // Fetch userid from backend using teacherID
-        axios.get(`http://localhost:8080/getbyTeacherID/${teacherID}`)
-            .then(response => {
-                setUserid(response.data.userid);
-            })
-            .catch(error => {
-                console.error('Error fetching userid:', error);
-            });
+        const fetchData = async () => {
+            try {
+                // Fetch section ID based on teacher ID
+                const response = await axios.get(`http://localhost:8080/getbyteacherid/${teacherID}`);
+                const responseData = response.data;
+                if (responseData.length > 0) {
+                    const sectionId = responseData[0].section.id;
+                    setSectionId(sectionId);
+                    console.log(sectionId);
+
+                    // Fetch events based on section ID
+                    const eventsResponse = await axios.get(`http://localhost:8080/sectionevents/${sectionId}`);
+                    setEvents(eventsResponse.data);
+                } else {
+                    console.log('Teacher not found');
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchData();
     }, [teacherID]);
 
-    useEffect(() => {
-        if (userid) {
-            // Fetch events from backend API using userid
-            axios.get(`http://localhost:8080/teacherevents/${userid}`)
-                .then(response => {
-                    setEvents(response.data);
-                })
-                .catch(error => {
-                    console.error('Error fetching events:', error);
-                });
-        }
-    }, [userid]);
 
     return (
         <div className="table-wrapper">
@@ -42,7 +45,7 @@ const TeacherEvents = () => {
                         <th>Start Date</th>
                         <th>End Date</th>
                         <th>Description</th>
-                        <th>Attendance</th>
+                        <th>View Student Records</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,7 +58,7 @@ const TeacherEvents = () => {
                             <td>
                                 {/* Link to TeacherAttendance with teacherID and eventID */}
                                 <Link to={`/Teacher/Attendance/${teacherID}/${event.event.eventID}`}>
-                                    View Attendance
+                                    ICON
                                 </Link>
                             </td>
                         </tr>

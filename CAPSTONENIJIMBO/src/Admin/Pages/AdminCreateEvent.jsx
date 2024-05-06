@@ -17,6 +17,7 @@ function AdminCreateEvent() {
   const [message, setMessage] = useState('');
   const [sections, setSections] = useState([]);
   const [selectedSection, setSelectedSection] = useState('');
+ 
 
   useEffect(() => {
     // Fetch teachers when component mounts
